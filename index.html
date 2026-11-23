@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="ta">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>web1 - Link Manager</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    min-height: 100vh;
+    font-family: "Segoe UI", system-ui, sans-serif;
+    background: linear-gradient(135deg, #1e1b4b, #312e81 50%, #0f172a);
+    color: #e2e8f0;
+    display: flex; justify-content: center;
+    padding: 30px 16px;
+  }
+  .card {
+    width: 100%; max-width: 520px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 20px; padding: 30px 26px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+  }
+  .hidden { display: none !important; }
+  h1 {
+    font-size: 1.5rem; margin-bottom: 6px;
+    background: linear-gradient(90deg, #a5b4fc, #f0abfc);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .sub { color: #94a3b8; font-size: 0.9rem; margin-bottom: 20px; }
+  label { display: block; font-size: 0.85rem; color: #cbd5e1; margin-bottom: 6px; }
+  input {
+    width: 100%; padding: 12px 14px; margin-bottom: 14px;
+    border-radius: 12px; border: 1px solid rgba(255,255,255,0.15);
+    background: rgba(15,23,42,0.6); color: #f1f5f9; font-size: 0.97rem; outline: none;
+  }
+  input:focus { border-color: #818cf8; box-shadow: 0 0 0 3px rgba(129,140,248,0.25); }
+  .btn {
+    width: 100%; padding: 12px; border: none; border-radius: 12px;
+    font-size: 0.98rem; font-weight: 600; color: #fff; cursor: pointer;
+    background: linear-gradient(90deg, #6366f1, #a855f7);
+    transition: transform 0.15s, opacity 0.2s;
+  }
+  .btn:hover { transform: translateY(-2px); opacity: 0.92; }
+  .btn.ghost {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  .top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+  .lock-btn {
+    width: auto; padding: 8px 14px; font-size: 0.85rem; margin: 0;
+  }
+  .error { color: #fca5a5; font-size: 0.87rem; min-height: 1.2em; margin-bottom: 8px; }
+  .count { color: #a5b4fc; font-size: 0.9rem; margin: 18px 0 10px; }
+  .list { display: flex; flex-direction: column; gap: 10px; }
+  .item {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    background: rgba(15,23,42,0.5); border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px; padding: 10px 12px;
+  }
+  .item-text { overflow: hidden; min-width: 0; }
+  .item-name { font-weight: 600; }
+  .item-link {
+    font-size: 0.8rem; color: #94a3b8;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .item-link a { color: #94a3b8; text-decoration: none; }
+  .item-link a:hover { text-decoration: underline; }
+  .del {
+    background: rgba(239,68,68,0.15); color: #fca5a5;
+    border: 1px solid rgba(239,68,68,0.3);
+    border-radius: 8px; padding: 6px 10px; cursor: pointer; flex-shrink: 0;
+  }
+  .empty { color: #64748b; font-size: 0.9rem; text-align: center; padding: 14px; }
+  .note { margin-top: 18px; font-size: 0.8rem; color: #fde68a; }
+</style>
+</head>
+<body>
+
+<!-- LOCK SCREEN -->
+<div class="card" id="lockScreen">
+  <h1 id="lockTitle">Locked 🔒</h1>
+  <p class="sub" id="lockSub"></p>
+
+  <label for="passInput" id="passLabel">Password</label>
+  <input id="passInput" type="password" placeholder="Password type pannunga" />
+
+  <div id="confirmWrap" class="hidden">
+    <label for="passInput2">Password again</label>
+    <input id="passInput2" type="password" placeholder="Same password marubadiyum" />
+  </div>
+
+  <div class="error" id="lockError"></div>
+  <button class="btn" id="lockBtn">Unlock</button>
+</div>
+
+<!-- MAIN SCREEN -->
+<div class="card hidden" id="mainScreen">
+  <div class="top">
+    <h1>Link Manager</h1>
+    <button class="btn ghost lock-btn" id="relockBtn">Lock 🔒</button>
+  </div>
+  <p class="sub">Name-um link-um add pannunga.</p>
+
+  <label for="nameInput">Name</label>
+  <input id="nameInput" type="text" placeholder="Eg: YouTube" maxlength="40" />
+
+  <label for="linkInput">Link</label>
+  <input id="linkInput" type="url" placeholder="https://youtube.com" />
+
+  <div class="error" id="addError"></div>
+  <button class="btn" id="addBtn">+ Add</button>
+
+  <div class="count" id="count"></div>
+  <div class="list" id="list"></div>
+
+  <p class="note">⚠️ Links intha browser-la mattum save aagum.</p>
+</div>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+  const HASH_KEY = "web1-pass-hash";
+  const LINKS_KEY = "web1-links";
+
+  let links = JSON.parse(localStorage.getItem(LINKS_KEY) || "[]");
+
+  // SHA-256 hash of a string (password is never stored as plain text)
+  async function sha256(text) {
+    const data = new TextEncoder().encode(text);
+    const buf = await crypto.subtle.digest("SHA-256", data);
+    return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, "0")).join("");
+  }
+
+  function cleanUrl(value) {
+    try {
+      const u = new URL(value.trim());
+      return (u.protocol === "http:" || u.protocol === "https:") ? u.href : null;
+    } catch { return null; }
+  }
+
+  function saveLinks() {
+    localStorage.setItem(LINKS_KEY, JSON.stringify(links));
+  }
+
+  // ---------- LOCK SCREEN SETUP ----------
+  const PASSWORD = "2311";
+  const isFirstTime = false;
+  if (isFirstTime) {
+    $("lockTitle").textContent = "Password set pannunga 🔐";
+    $("lockSub").textContent = "Mudhal thadava. Oru password create pannunga.";
+    $("passLabel").textContent = "New password";
+    $("confirmWrap").classList.remove("hidden");
+    $("lockBtn").textContent = "Save & Open";
+  } else {
+    $("lockSub").textContent = "Password type panni open pannunga.";
+  }
+
+  async function handleLock() {
+    const pass = $("passInput").value;
+    const error = $("lockError");
+    error.textContent = "";
+
+    if (!pass) { error.textContent = "Password type pannunga."; return; }
+
+    if (isFirstTime) {
+      const pass2 = $("passInput2").value;
+      if (pass.length < 4) { error.textContent = "Kuraichadhu 4 characters venum."; return; }
+      if (pass !== pass2) { error.textContent = "Rendu password-um match aagala."; return; }
+      localStorage.setItem(HASH_KEY, await sha256(pass));
+      showMain();
+      return;
+    }
+
+    if (pass === PASSWORD) {
+      $("passInput").value = "";
+      showMain();
+    } else {
+      error.textContent = "Password thappu.";
+    }
+  }
+
+  $("lockBtn").addEventListener("click", handleLock);
+  $("passInput").addEventListener("keydown", (e) => { if (e.key === "Enter") handleLock(); });
+
+  function showLock() {
+    $("mainScreen").classList.add("hidden");
+    $("lockScreen").classList.remove("hidden");
+    $("passInput").value = "";
+    $("lockError").textContent = "";
+    setTimeout(() => $("passInput").focus(), 50);
+  }
+
+  function showMain() {
+    $("lockScreen").classList.add("hidden");
+    $("mainScreen").classList.remove("hidden");
+    render();
+  }
+
+  $("relockBtn").addEventListener("click", () => {
+    // Password setup mudinja, next time lock screen-la login mattum varum
+    location.reload();
+  });
+
+  // ---------- LINK LIST ----------
+  function render() {
+    const list = $("list");
+    list.innerHTML = "";
+    $("count").textContent = "Total links: " + links.length;
+
+    if (links.length === 0) {
+      const e = document.createElement("div");
+      e.className = "empty";
+      e.textContent = "Innum links add pannala.";
+      list.appendChild(e);
+      return;
+    }
+
+    links.forEach((item, i) => {
+      const row = document.createElement("div");
+      row.className = "item";
+
+      const text = document.createElement("div");
+      text.className = "item-text";
+
+      const n = document.createElement("div");
+      n.className = "item-name";
+      n.textContent = (i + 1) + ". " + item.name;
+
+      const l = document.createElement("div");
+      l.className = "item-link";
+      const a = document.createElement("a");
+      a.href = item.link;
+      a.target = "_blank";
+      a.rel = "noopener noreferrer";
+      a.textContent = item.link;
+      l.appendChild(a);
+
+      text.append(n, l);
+
+      const del = document.createElement("button");
+      del.className = "del";
+      del.textContent = "Delete";
+      del.onclick = () => {
+        if (confirm("'" + item.name + "' delete pannalaama?")) {
+          links.splice(i, 1);
+          saveLinks();
+          render();
+        }
+      };
+
+      row.append(text, del);
+      list.appendChild(row);
+    });
+  }
+
+  $("addBtn").addEventListener("click", () => {
+    const name = $("nameInput").value.trim();
+    const link = cleanUrl($("linkInput").value);
+    const error = $("addError");
+    error.textContent = "";
+
+    if (!name) { error.textContent = "Name type pannunga."; return; }
+    if (!link) { error.textContent = "Sariyana link (https:// la start aaganum)."; return; }
+
+    links.push({ name, link, addedAt: new Date().toLocaleString() });
+    saveLinks();
+    render();
+    $("nameInput").value = "";
+    $("linkInput").value = "";
+    $("nameInput").focus();
+  });
+
+  // Start on lock screen
+  showLock();
+</script>
+
+</body>
+</html>
