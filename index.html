@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="ta">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>My Links</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg1: #0b1020; --bg2: #1e1b4b; --bg3: #0f2a2a;
+    --card: rgba(255,255,255,0.05);
+    --border: rgba(255,255,255,0.1);
+    --text: #e2e8f0; --muted: #94a3b8;
+    --accent1: #6366f1; --accent2: #a855f7; --accent3: #14b8a6;
+    --danger: #f87171;
+  }
+  body {
+    min-height: 100vh;
+    font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+    color: var(--text);
+    background: radial-gradient(1200px 600px at 10% -10%, #312e81 0%, transparent 60%),
+                radial-gradient(900px 500px at 110% 10%, #0f766e 0%, transparent 55%),
+                linear-gradient(160deg, var(--bg1), var(--bg2) 55%, var(--bg3));
+    background-attachment: fixed;
+  }
+  .hidden { display: none !important; }
+
+  /* NAV */
+  .nav {
+    position: sticky; top: 0; z-index: 10;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 20px; gap: 12px;
+    background: rgba(11,16,32,0.65);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--border);
+  }
+  .brand {
+    font-weight: 800; font-size: 1.15rem; letter-spacing: 0.3px;
+    background: linear-gradient(90deg, #a5b4fc, #f0abfc);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .menu { display: flex; gap: 8px; background: var(--card); border: 1px solid var(--border); padding: 4px; border-radius: 999px; }
+  .menu button {
+    border: none; background: transparent; color: var(--muted);
+    padding: 8px 16px; border-radius: 999px; cursor: pointer; font-size: 0.92rem; font-weight: 600;
+    transition: all 0.2s;
+  }
+  .menu button.active { background: linear-gradient(90deg, var(--accent1), var(--accent2)); color: #fff; box-shadow: 0 6px 18px rgba(99,102,241,0.35); }
+
+  main { max-width: 900px; margin: 0 auto; padding: 26px 18px 60px; }
+  .page-title { font-size: 1.6rem; font-weight: 800; margin-bottom: 4px; }
+  .page-sub { color: var(--muted); font-size: 0.93rem; margin-bottom: 22px; }
+
+  /* CARDS / FORMS */
+  .panel {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 18px; padding: 22px; backdrop-filter: blur(8px);
+    box-shadow: 0 18px 40px rgba(0,0,0,0.35);
+  }
+  label { display: block; font-size: 0.82rem; color: #cbd5e1; margin-bottom: 6px; font-weight: 500; }
+  input, select {
+    width: 100%; padding: 12px 14px; margin-bottom: 14px;
+    border-radius: 12px; border: 1px solid rgba(255,255,255,0.14);
+    background: rgba(15,23,42,0.7); color: var(--text); font-size: 0.97rem; outline: none;
+    font-family: inherit;
+  }
+  select option { background: #0f172a; color: #f1f5f9; }
+  input:focus, select:focus { border-color: #818cf8; box-shadow: 0 0 0 3px rgba(129,140,248,0.25); }
+  .row { display: grid; grid-template-columns: 1fr 140px; gap: 12px; }
+  .row input, .row select { margin-bottom: 0; }
+
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    padding: 12px 18px; border: none; border-radius: 12px; cursor: pointer;
+    font-size: 0.97rem; font-weight: 600; color: #fff; text-decoration: none;
+    background: linear-gradient(90deg, var(--accent1), var(--accent2));
+    transition: transform 0.15s, box-shadow 0.2s, opacity 0.2s;
+    box-shadow: 0 8px 20px rgba(99,102,241,0.25);
+  }
+  .btn:hover { transform: translateY(-2px); opacity: 0.94; }
+  .btn.block { width: 100%; }
+  .btn.ghost { background: rgba(255,255,255,0.08); border: 1px solid var(--border); box-shadow: none; }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+  .error { color: #fca5a5; font-size: 0.88rem; min-height: 1.3em; margin: 2px 0 10px; }
+
+  /* HOME: search + grid */
+  .search-row { display: grid; grid-template-columns: 1fr 180px; gap: 12px; margin-bottom: 14px; }
+  .search-row input, .search-row select { margin-bottom: 0; }
+  .search-row input { padding-left: 42px; background-image: none; }
+  .search-wrap { position: relative; }
+  .search-wrap::before {
+    content: "🔍"; position: absolute; left: 14px; top: 50%; transform: translateY(-50%); pointer-events: none; opacity: 0.7;
+  }
+  .meta { color: var(--muted); font-size: 0.85rem; margin-bottom: 14px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 14px; }
+  .tile {
+    display: flex; flex-direction: column; justify-content: space-between; gap: 10px;
+    background: linear-gradient(160deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02));
+    border: 1px solid var(--border); border-radius: 16px; padding: 16px;
+    text-decoration: none; color: var(--text);
+    transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+    min-height: 110px;
+  }
+  .tile:hover { transform: translateY(-3px); border-color: rgba(129,140,248,0.6); box-shadow: 0 14px 30px rgba(0,0,0,0.35); }
+  .tile-name { font-weight: 700; font-size: 1rem; word-break: break-word; }
+  .tile-foot { display: flex; justify-content: space-between; align-items: center; font-size: 0.78rem; color: var(--muted); }
+  .badge {
+    background: rgba(20,184,166,0.15); color: #5eead4; border: 1px solid rgba(20,184,166,0.35);
+    padding: 3px 9px; border-radius: 999px; font-weight: 600;
+  }
+  .empty { grid-column: 1 / -1; text-align: center; color: var(--muted); padding: 40px 10px; }
+
+  /* ADMIN */
+  .admin-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; gap: 10px; flex-wrap: wrap; }
+  .list { display: flex; flex-direction: column; gap: 10px; margin-top: 22px; }
+  .item {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    background: rgba(15,23,42,0.55); border: 1px solid var(--border);
+    border-radius: 14px; padding: 12px 14px;
+  }
+  .item-main { min-width: 0; }
+  .item-name { font-weight: 700; }
+  .item-meta { font-size: 0.8rem; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 3px; }
+  .del {
+    background: rgba(248,113,113,0.12); color: var(--danger);
+    border: 1px solid rgba(248,113,113,0.35); border-radius: 10px;
+    padding: 7px 12px; cursor: pointer; flex-shrink: 0; font-weight: 600;
+  }
+  .lock-box { max-width: 360px; margin: 30px auto 0; text-align: center; }
+  .lock-icon { font-size: 2.4rem; margin-bottom: 8px; }
+  .footer-note { text-align: center; color: #fde68a; font-size: 0.8rem; margin-top: 26px; opacity: 0.85; }
+
+  @media (max-width: 560px) {
+    .search-row { grid-template-columns: 1fr; }
+    .row { grid-template-columns: 1fr; }
+    .brand { font-size: 1rem; }
+    .menu button { padding: 7px 12px; font-size: 0.85rem; }
+  }
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="brand">My Links</div>
+  <nav class="menu">
+    <button id="menuHome" class="active">🏠 Home</button>
+    <button id="menuAdmin">🔒 Admin</button>
+  </nav>
+</header>
+
+<main>
+
+  <!-- HOME PAGE -->
+  <section id="pageHome">
+    <h1 class="page-title">Links</h1>
+    <p class="page-sub">Name vachu search pannunga, illa year select panni andha year-la irukkura links paarunga.</p>
+
+    <div class="search-row">
+      <div class="search-wrap">
+        <input id="searchInput" type="text" placeholder="Name vachu search pannunga..." />
+      </div>
+      <select id="yearFilter"></select>
+    </div>
+
+    <div class="meta" id="meta"></div>
+    <div class="grid" id="grid">
+      <div class="empty">Loading...</div>
+    </div>
+  </section>
+
+  <!-- ADMIN PAGE -->
+  <section id="pageAdmin" class="hidden">
+
+    <!-- Lock screen -->
+    <div id="lockView" class="panel lock-box">
+      <div class="lock-icon">🔒</div>
+      <h2 class="page-title" style="font-size:1.3rem;">Admin Login</h2>
+      <p class="page-sub">Password type pannunga</p>
+      <input id="passInput" type="password" placeholder="Password" />
+      <div class="error" id="lockError"></div>
+      <button class="btn block" id="unlockBtn">Unlock</button>
+    </div>
+
+    <!-- Admin panel -->
+    <div id="adminView" class="hidden">
+      <div class="admin-top">
+        <div>
+          <h1 class="page-title">Admin</h1>
+          <p class="page-sub" style="margin-bottom:0;">Link add, year-oda save pannunga.</p>
+        </div>
+        <button class="btn ghost" id="lockAgainBtn">🔒 Lock</button>
+      </div>
+
+      <div class="panel">
+        <label for="nameInput">Name</label>
+        <input id="nameInput" type="text" placeholder="Eg: YouTube" maxlength="40" />
+
+        <label for="linkInput">Link</label>
+        <input id="linkInput" type="url" placeholder="https://youtube.com" />
+
+        <div class="row">
+          <div>
+            <label for="yearInput">Year</label>
+            <select id="yearInput"></select>
+          </div>
+          <div style="display:flex;align-items:flex-end;">
+            <button class="btn block" id="saveBtn" style="margin-bottom:14px;">💾 Save</button>
+          </div>
+        </div>
+
+        <div class="error" id="addError"></div>
+
+        <div class="list" id="adminList"></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="footer-note">⚠️ Therinja link-a mattum open pannunga.</div>
+</main>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import {
+    getFirestore, collection, addDoc, getDocs, deleteDoc, doc, serverTimestamp
+  } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  // ---- Firebase config (webs project) ----
+  const firebaseConfig = {
+    apiKey: "AIzaSyAbRqPNnEyuz3A6BotGxkzOltETLKrSfJc",
+    authDomain: "webs-93c46.firebaseapp.com",
+    projectId: "webs-93c46",
+    storageBucket: "webs-93c46.firebasestorage.app",
+    messagingSenderId: "838265859523",
+    appId: "1:838265859523:web:2b7922c8e4a3ba58dda176"
+  };
+
+  const ADMIN_PASSWORD = "2311";
+  const COLLECTION = "links";
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const linksRef = collection(db, COLLECTION);
+
+  const $ = (id) => document.getElementById(id);
+  const NO_YEAR = "none";
+
+  let allLinks = [];
+  let unlocked = false;
+
+  function cleanUrl(value) {
+    try {
+      const u = new URL(value.trim());
+      return (u.protocol === "http:" || u.protocol === "https:") ? u.href : null;
+    } catch { return null; }
+  }
+
+  // Years list: last 10 years to next year
+  function yearOptions() {
+    const now = new Date().getFullYear();
+    const years = [];
+    for (let y = now + 1; y >= now - 10; y--) years.push(y);
+    return years;
+  }
+
+  function fillYearSelect(select, includeAll) {
+    select.innerHTML = "";
+    if (includeAll) {
+      select.appendChild(new Option("All years", "all"));
+    }
+    yearOptions().forEach(y => select.appendChild(new Option(String(y), String(y))));
+  }
+
+  // ---------- LOAD ----------
+  async function loadAll() {
+    try {
+      const snap = await getDocs(linksRef);
+      allLinks = snap.docs.map(d => {
+        const data = d.data();
+        return {
+          id: d.id,
+          name: data.name || "",
+          link: data.link || "",
+          year: data.year != null ? String(data.year) : NO_YEAR,
+          createdAt: data.createdAt ? data.createdAt.toMillis?.() || 0 : 0
+        };
+      });
+      allLinks.sort((a, b) => (b.year.localeCompare(a.year)) || (a.name.localeCompare(b.name)));
+      return true;
+    } catch (err) {
+      console.error(err);
+      return false;
+    }
+  }
+
+  // ---------- HOME ----------
+  function buildYearFilter() {
+    const select = $("yearFilter");
+    const previous = select.value;
+    select.innerHTML = "";
+    select.appendChild(new Option("All years", "all"));
+
+    const years = [...new Set(allLinks.map(l => l.year))]
+      .sort((a, b) => b.localeCompare(a));
+    years.forEach(y => {
+      select.appendChild(new Option(y === NO_YEAR ? "No year" : y, y));
+    });
+
+    if ([...select.options].some(o => o.value === previous)) select.value = previous;
+  }
+
+  function renderHome() {
+    const grid = $("grid");
+    const q = $("searchInput").value.trim().toLowerCase();
+    const year = $("yearFilter").value;
+
+    const matches = allLinks.filter(l => {
+      const okYear = year === "all" || l.year === year;
+      const okName = !q || l.name.toLowerCase().includes(q);
+      return okYear && okName;
+    });
+
+    $("meta").textContent = matches.length + " link(s) kaatuthu";
+
+    grid.innerHTML = "";
+    if (matches.length === 0) {
+      const e = document.createElement("div");
+      e.className = "empty";
+      e.textContent = allLinks.length === 0 ? "Innum links illai." : "Indha search-kku links illai.";
+      grid.appendChild(e);
+      return;
+    }
+
+    matches.forEach(l => {
+      const url = cleanUrl(l.link);
+      if (!url) return;
+      const a = document.createElement("a");
+      a.className = "tile";
+      a.href = url;
+      a.target = "_blank";
+      a.rel = "noopener noreferrer";
+
+      const name = document.createElement("div");
+      name.className = "tile-name";
+      name.textContent = l.name;
+
+      const foot = document.createElement("div");
+      foot.className = "tile-foot";
+      const badge = document.createElement("span");
+      badge.className = "badge";
+      badge.textContent = l.year === NO_YEAR ? "No year" : l.year;
+      const arrow = document.createElement("span");
+      arrow.textContent = "Open ↗";
+      foot.append(badge, arrow);
+
+      a.append(name, foot);
+      grid.appendChild(a);
+    });
+  }
+
+  $("searchInput").addEventListener("input", renderHome);
+  $("yearFilter").addEventListener("change", renderHome);
+
+  // ---------- MENU ----------
+  function showPage(page) {
+    const isHome = page === "home";
+    $("pageHome").classList.toggle("hidden", !isHome);
+    $("pageAdmin").classList.toggle("hidden", isHome);
+    $("menuHome").classList.toggle("active", isHome);
+    $("menuAdmin").classList.toggle("active", !isHome);
+    if (!isHome) updateAdminView();
+  }
+
+  $("menuHome").addEventListener("click", () => showPage("home"));
+  $("menuAdmin").addEventListener("click", () => showPage("admin"));
+
+  // ---------- ADMIN LOCK ----------
+  function updateAdminView() {
+    $("lockView").classList.toggle("hidden", unlocked);
+    $("adminView").classList.toggle("hidden", !unlocked);
+    if (unlocked) renderAdmin();
+    else {
+      $("passInput").value = "";
+      $("lockError").textContent = "";
+    }
+  }
+
+  function tryUnlock() {
+    if ($("passInput").value === ADMIN_PASSWORD) {
+      unlocked = true;
+      updateAdminView();
+    } else {
+      $("lockError").textContent = "Password thappu.";
+    }
+  }
+
+  $("unlockBtn").addEventListener("click", tryUnlock);
+  $("passInput").addEventListener("keydown", (e) => { if (e.key === "Enter") tryUnlock(); });
+
+  $("lockAgainBtn").addEventListener("click", () => {
+    unlocked = false;
+    updateAdminView();
+  });
+
+  // ---------- ADMIN: list + save + delete ----------
+  function renderAdmin() {
+    const box = $("adminList");
+    box.innerHTML = "";
+
+    const title = document.createElement("div");
+    title.className = "meta";
+    title.textContent = "Total links: " + allLinks.length;
+    box.appendChild(title);
+
+    if (allLinks.length === 0) {
+      const e = document.createElement("div");
+      e.className = "empty";
+      e.textContent = "Innum links add pannala.";
+      box.appendChild(e);
+      return;
+    }
+
+    allLinks.forEach(l => {
+      const row = document.createElement("div");
+      row.className = "item";
+
+      const main = document.createElement("div");
+      main.className = "item-main";
+      const n = document.createElement("div");
+      n.className = "item-name";
+      n.textContent = l.name + "  ·  " + (l.year === NO_YEAR ? "No year" : l.year);
+      const m = document.createElement("div");
+      m.className = "item-meta";
+      m.textContent = l.link;
+      main.append(n, m);
+
+      const del = document.createElement("button");
+      del.className = "del";
+      del.textContent = "Delete";
+      del.onclick = async () => {
+        if (!confirm("'" + l.name + "' delete pannalaama?")) return;
+        try {
+          await deleteDoc(doc(db, COLLECTION, l.id));
+          await refreshAll();
+        } catch (err) {
+          alert("Delete aagala: " + err.message);
+        }
+      };
+
+      row.append(main, del);
+      box.appendChild(row);
+    });
+  }
+
+  $("saveBtn").addEventListener("click", async () => {
+    const name = $("nameInput").value.trim();
+    const link = cleanUrl($("linkInput").value);
+    const year = Number($("yearInput").value);
+    const error = $("addError");
+    error.textContent = "";
+
+    if (!name) { error.textContent = "Name type pannunga."; return; }
+    if (!link) { error.textContent = "Sariyana link (https:// la start aaganum)."; return; }
+    if (!year) { error.textContent = "Year select pannunga."; return; }
+
+    $("saveBtn").disabled = true;
+    try {
+      await addDoc(linksRef, { name, link, year, createdAt: serverTimestamp() });
+      $("nameInput").value = "";
+      $("linkInput").value = "";
+      $("nameInput").focus();
+      await refreshAll();
+    } catch (err) {
+      error.textContent = "Save aagala: " + err.message;
+    } finally {
+      $("saveBtn").disabled = false;
+    }
+  });
+
+  // ---------- REFRESH ----------
+  async function refreshAll() {
+    const ok = await loadAll();
+    buildYearFilter();
+    renderHome();
+    if (unlocked) renderAdmin();
+    if (!ok) $("meta").textContent = "Links load aagala. Firebase rules check pannunga.";
+  }
+
+  // ---------- INIT ----------
+  fillYearSelect($("yearInput"), false);
+  $("yearInput").value = String(new Date().getFullYear());
+  refreshAll();
+</script>
+
+</body>
+</html>
